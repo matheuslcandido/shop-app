@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, Platform } from 'react-native';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { HeaderButtons, Item } from 'react-navigation-header-buttons';
 
 import HeaderButton from '../../components/UI/HeaderButton';
+import * as productsActions from '../../store/actions/products';
 
 const EditProductScreen = props => {
+  const dispatch = useDispatch();
+
   const productId = props.navigation.getParam('productId');
 
   const editedProduct = useSelector(state => (
@@ -16,6 +19,30 @@ const EditProductScreen = props => {
   const [imageUrl, setImageUrl] = useState(editedProduct ? editedProduct.imageUrl : '');
   const [price, setPrice] = useState('');
   const [description, setDescription] = useState(editedProduct ? editedProduct.description : '');
+
+  const submitHandler = useCallback(() => {
+    if (editedProduct) {
+      dispatch(productsActions.updateProduct(
+        productId, 
+        title,
+        description,
+        imageUrl
+      ));
+    } else {
+      dispatch(productsActions.createProduct(
+        title,
+        description,
+        imageUrl,
+        +price
+      ));
+    }
+
+    console.log('Create');
+  }, [dispatch, productId, title, description, imageUrl, price]);
+
+  useEffect(() => {
+    props.navigation.setParams({ 'submit': submitHandler });
+  }, [submitHandler]);
 
   return (
     <ScrollView>
@@ -60,6 +87,8 @@ const EditProductScreen = props => {
 };
 
 EditProductScreen.navigationOptions = navData => {
+  const submitHandler = navData.navigation.getParam('submit');
+
   return {
     headerTitle: navData.navigation.getParam('productId') ? 'Edit Product' : 'Add Product',
     headerRight: () => (
@@ -67,9 +96,7 @@ EditProductScreen.navigationOptions = navData => {
         <Item 
           title='Save' 
           iconName={Platform.OS === 'android' ? 'md-checkmark' : 'ios-checkmark' } 
-          onPress={() => {
-            
-          }}  
+          onPress={submitHandler}  
         />
       </HeaderButtons>
     ),
