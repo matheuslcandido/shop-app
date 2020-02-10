@@ -17,8 +17,6 @@ const ProductOverViewScreen = props => {
   const dispatch = useDispatch();
 
   const loadProducts = useCallback(async () => {
-    console.log('load products');
-
     setError(null);
     setIsLoading(true);
 

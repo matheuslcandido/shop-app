@@ -39,9 +39,15 @@ export const fetchProducts = () => {
 };
 
 export const deleteProduct = productId => {
-  return {
-    type: DELETE_PRODUCT,
-    productId: productId,
+  return async dispatch => {
+    await fetch(`https://shop-app-aad22.firebaseio.com/products/${productId}.json`, {
+      method: 'DELETE',
+    });
+    
+    dispatch({
+      type: DELETE_PRODUCT,
+      productId: productId,
+    });  
   };
 };
 
@@ -76,13 +82,27 @@ export const createProduct = (title, description, imageUrl, price) => {
 };
 
 export const updateProduct = (id, title, description, imageUrl) => {
-  return {
-    type: UPDATE_PRODUCT,
-    productId: id,
-    productData: {
-      title: title,
-      description: description,
-      imageUrl: imageUrl,
-    }
-  };
+  return async dispatch => {
+    await fetch(`https://shop-app-aad22.firebaseio.com/products/${id}.json`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        title,
+        description,
+        imageUrl,
+      }),
+    });
+
+    dispatch({
+      type: UPDATE_PRODUCT,
+      productId: id,
+      productData: {
+        title: title,
+        description: description,
+        imageUrl: imageUrl,
+      }
+    });
+  }
 };
